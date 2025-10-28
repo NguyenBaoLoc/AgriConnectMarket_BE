@@ -7,6 +7,10 @@ namespace AgriConnectMarket.Infrastructure.Data
     public class AppDbContext(DbContextOptions options, IDateTimeProvider _dateTimeProvider) : DbContext(options)
     {
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<Profile> Profiles { get; set; }
+        public DbSet<Farm> Farms { get; set; }
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<Season> Seasons { get; set; }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -43,6 +47,34 @@ namespace AgriConnectMarket.Infrastructure.Data
                 b.Property(u => u.CreatedBy).HasMaxLength(100);
                 b.Property(u => u.UpdatedAt);
                 b.Property(u => u.UpdatedBy).HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<Profile>(b =>
+            {
+                b.ToTable("Profiles");
+                b.HasKey(p => p.Id);
+
+                b.HasOne(p => p.Account)
+                    .WithOne(a => a.Profile)
+                    .HasForeignKey<Profile>(p => p.AccountId)
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<Farm>(f =>
+            {
+                f.ToTable("Farms");
+                f.HasKey(f => f.Id);
+
+                f.HasOne(f => f.Farmer)
+                    .WithOne(a => a.Farm)
+                    .HasForeignKey<Farm>(f => f.FarmerId)
+                    .IsRequired();
+
+                f.HasOne(f => f.Address)
+                    .WithOne(a => a.Farm)
+                    .HasForeignKey<Farm>(f => f.AddressId)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.NoAction);
             });
         }
     }
