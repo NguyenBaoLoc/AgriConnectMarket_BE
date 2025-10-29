@@ -1,11 +1,7 @@
 ﻿using AgriConnectMarket.Application.DTOs.RequestDtos;
 using AgriConnectMarket.Application.DTOs.ResponseDtos;
-using AgriConnectMarket.Application.DTOs.RequestDtos;
-using AgriConnectMarket.Application.DTOs.ResponseDtos;
 using AgriConnectMarket.Application.Interfaces;
 using AgriConnectMarket.Domain.Entities;
-using AgriConnectMarket.SharedKernel.Constants;
-using AgriConnectMarket.SharedKernel.Guards;
 using AgriConnectMarket.SharedKernel.Constants;
 using AgriConnectMarket.SharedKernel.Guards;
 using AgriConnectMarket.SharedKernel.Result;
@@ -15,10 +11,8 @@ using System.Text;
 namespace AgriConnectMarket.Infrastructure.Services
 {
     public class AuthService(IUnitOfWork _uow, IJwtService _jwtService)
-    public class AuthService(IUnitOfWork _uow, IJwtService _jwtService)
     {
         // Register command
-        public async Task<Result<RegisterResultDto>> RegisterAsync(RegisterDto dto, CancellationToken ct = default)
         public async Task<Result<RegisterResultDto>> RegisterAsync(RegisterDto dto, CancellationToken ct = default)
         {
             // basic input validation
@@ -27,16 +21,8 @@ namespace AgriConnectMarket.Infrastructure.Services
             Guard.AgainstNullOrWhiteSpace(dto.Email, nameof(dto.Email));
             Guard.AgainstNullOrWhiteSpace(dto.Fullname, nameof(dto.Fullname));
             Guard.AgainstNullOrWhiteSpace(dto.Phone, nameof(dto.Phone));
-            Guard.AgainstNullOrWhiteSpace(dto.Username, nameof(dto.Username));
-            Guard.AgainstNullOrWhiteSpace(dto.Password, nameof(dto.Password));
-            Guard.AgainstNullOrWhiteSpace(dto.Email, nameof(dto.Email));
-            Guard.AgainstNullOrWhiteSpace(dto.Fullname, nameof(dto.Fullname));
-            Guard.AgainstNullOrWhiteSpace(dto.Phone, nameof(dto.Phone));
 
             // Check if user exists
-            var existing = await _uow.AuthenRepository.GetByUsernameAsync(dto.Username);
-            if (existing != null)
-                return Result<RegisterResultDto>.Fail(MessageConstant.EXISTING_USERNAME);
             var existing = await _uow.AuthenRepository.GetByUsernameAsync(dto.Username);
             if (existing != null)
                 return Result<RegisterResultDto>.Fail(MessageConstant.EXISTING_USERNAME);

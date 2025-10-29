@@ -21,7 +21,6 @@ namespace AgriConnectMarket.Infrastructure.Extensions
 
             services.AddCloudinaryService(configuration);
             services.AddJwtAuthentication(configuration);
-            services.AddJwtAuthentication(configuration);
 
             services.AddRepositories();
 
@@ -33,6 +32,7 @@ namespace AgriConnectMarket.Infrastructure.Extensions
             services.AddScoped<AuthService>();
             services.AddScoped<FarmService>();
             services.AddScoped<SeasonService>();
+            services.AddScoped<ProfileService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
