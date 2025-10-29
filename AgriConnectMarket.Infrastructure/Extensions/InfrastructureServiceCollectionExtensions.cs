@@ -18,7 +18,9 @@ namespace AgriConnectMarket.Infrastructure.Extensions
                 options.UseSqlServer(configuration.GetConnectionString("Default"),
                     sql => sql.EnableRetryOnFailure()));
 
+
             services.AddCloudinaryService(configuration);
+            services.AddJwtAuthentication(configuration);
             services.AddJwtAuthentication(configuration);
 
             services.AddRepositories();
