@@ -18,7 +18,6 @@ namespace AgriConnectMarket.Infrastructure.Extensions
                 options.UseSqlServer(configuration.GetConnectionString("Default"),
                     sql => sql.EnableRetryOnFailure()));
 
-
             services.AddCloudinaryService(configuration);
             services.AddJwtAuthentication(configuration);
 
@@ -32,7 +31,6 @@ namespace AgriConnectMarket.Infrastructure.Extensions
             services.AddScoped<AuthService>();
             services.AddScoped<FarmService>();
             services.AddScoped<SeasonService>();
-            services.AddScoped<ProfileService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
