@@ -7,14 +7,28 @@ namespace AgriConnectMarket.Infrastructure.Repositories
 {
     public class ProfileRepository(AppDbContext _context) : Repository<Profile>(_context), IProfileRepository
     {
-        public async Task<Profile?> GetByEmailAsync(string email)
+        public async Task<Profile?> GetByEmailAsync(string email, bool includeAccount = false)
         {
-            return await _dbContext.Set<Profile>().FirstOrDefaultAsync(u => u.Email == email);
+            var query = _dbContext.Set<Profile>().Where(u => u.Email.Equals(email.Trim()));
+
+            if (includeAccount)
+            {
+                query = query.Include(u => u.Account);
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<Profile?> GetByAccountIdAsync(Guid accountId)
+        public async Task<Profile?> GetByAccountIdAsync(Guid accountId, bool includeAccount = false)
         {
-            return await _dbContext.Set<Profile>().FirstOrDefaultAsync(u => u.AccountId == accountId);
+            var query = _dbContext.Set<Profile>().Where(u => u.AccountId == accountId);
+
+            if (includeAccount)
+            {
+                query = query.Include(u => u.Account);
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using AgriConnectMarket.Application.DTOs.RequestDtos;
+using AgriConnectMarket.Application.DTOs.ResponseDtos;
 using AgriConnectMarket.Infrastructure.CloudinarySettings;
 using AgriConnectMarket.Infrastructure.Services;
+using AgriConnectMarket.SharedKernel.Constants;
 using AgriConnectMarket.SharedKernel.Responses;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,7 +48,9 @@ namespace AgriConnectMarket.WebApi.Controllers
             if (!result.IsSuccess)
                 return BadRequest(ApiResponse.FailResponse(result.Error));
 
-            return Ok(ApiResponse.SuccessResponse(result.Value, "Login successfully."));
+            Console.WriteLine(result.Value.ToString());
+
+            return Ok(ApiResponse<LoginResultDto>.SuccessResponse(result.Value, MessageConstant.LOGIN_SUCCESS));
         }
 
         [HttpPatch("change-password")]
@@ -57,7 +61,20 @@ namespace AgriConnectMarket.WebApi.Controllers
             if (!result.IsSuccess)
                 return BadRequest(ApiResponse.FailResponse(result.Error));
 
-            return Ok(ApiResponse.SuccessResponse(result.Value, "Login successfully."));
+            return Ok(ApiResponse.SuccessResponse(result.Value, MessageConstant.COMMON_UPDATE_SUCCESS_MESSAGE));
+        }
+
+        [HttpPatch("me/deactive")]
+        public async Task<IActionResult> DeactiveMyAccount(CancellationToken ct)
+        {
+            var result = await _authService.DeactiveAccount(ct);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(ApiResponse.FailResponse(result.Error));
+            }
+
+            return Ok(ApiResponse.SuccessResponse(result.Value, MessageConstant.DEACTIVE_ACCOUNT_SUCCESS));
         }
     }
 }
