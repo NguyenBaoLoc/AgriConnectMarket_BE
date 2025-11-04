@@ -1,6 +1,8 @@
 ﻿using AgriConnectMarket.Application.DTOs.RequestDtos;
+using AgriConnectMarket.Application.DTOs.ResponseDtos;
 using AgriConnectMarket.Infrastructure.CloudinarySettings;
 using AgriConnectMarket.Infrastructure.Services;
+using AgriConnectMarket.SharedKernel.Constants;
 using AgriConnectMarket.SharedKernel.Responses;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,7 +30,7 @@ namespace AgriConnectMarket.WebApi.Controllers
                 avatarUrl = uploadResult.Url ?? string.Empty;
             }
 
-            var dto = new RegisterDto(request.Username, request.Password, request.Email, request.Phone, request.Fullname, avatarUrl);
+            var dto = new RegisterDto(request.Username, request.Password, request.Email, request.Phone, request.Fullname, request.IsFarmer, avatarUrl);
 
             var result = await _authService.RegisterAsync(dto, ct);
 
@@ -46,7 +48,9 @@ namespace AgriConnectMarket.WebApi.Controllers
             if (!result.IsSuccess)
                 return BadRequest(ApiResponse.FailResponse(result.Error));
 
-            return Ok(ApiResponse.SuccessResponse(result.Value, "Login successfully."));
+            Console.WriteLine(result.Value.ToString());
+
+            return Ok(ApiResponse<LoginResultDto>.SuccessResponse(result.Value, MessageConstant.LOGIN_SUCCESS));
         }
 
         [HttpPatch("change-password")]
@@ -57,7 +61,7 @@ namespace AgriConnectMarket.WebApi.Controllers
             if (!result.IsSuccess)
                 return BadRequest(ApiResponse.FailResponse(result.Error));
 
-            return Ok(ApiResponse.SuccessResponse(result.Value, "Login successfully."));
+            return Ok(ApiResponse.SuccessResponse(result.Value, MessageConstant.COMMON_UPDATE_SUCCESS_MESSAGE));
         }
     }
 }

@@ -22,7 +22,22 @@ namespace AgriConnectMarket.Domain.Entities
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; }
 
-        public Profile(string fullname, string email, string phone, Guid accountId, string avatarUrl = "")
+        public Profile(string fullname, string email, string phone, Guid accountId, string? avatarUrl = "")
+        {
+            Guard.AgainstNullOrEmpty(fullname, nameof(fullname));
+            Guard.AgainstNullOrEmpty(email, nameof(email));
+            Guard.AgainstNullOrEmpty(phone, nameof(phone));
+            Guard.AgainstNullOrEmpty(avatarUrl, nameof(avatarUrl));
+
+            // basic normalization
+            Email = Normalizer.NormalizeEmail(email);
+            Phone = Normalizer.NormalizePhone(phone);
+            AvatarUrl = Normalizer.NormalizeUrl(avatarUrl!);
+            Fullname = fullname;
+            AccountId = accountId;
+        }
+
+        public Profile(string fullname, string email, string phone, string avatarUrl = "")
         {
             Guard.AgainstNullOrEmpty(fullname, nameof(fullname));
             Guard.AgainstNullOrEmpty(email, nameof(email));
@@ -34,7 +49,6 @@ namespace AgriConnectMarket.Domain.Entities
             Phone = Normalizer.NormalizePhone(phone);
             AvatarUrl = Normalizer.NormalizeUrl(avatarUrl);
             Fullname = fullname;
-            AccountId = accountId;
         }
 
         public void SetProfileAvatar(string publicId, string? url = null)
