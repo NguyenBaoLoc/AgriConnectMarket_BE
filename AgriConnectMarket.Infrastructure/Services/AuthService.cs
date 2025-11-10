@@ -10,7 +10,7 @@ using System.Text;
 
 namespace AgriConnectMarket.Infrastructure.Services
 {
-    public class AuthService(IUnitOfWork _uow, IJwtService _jwtService)
+    public class AuthService(IUnitOfWork _uow, IJwtService _jwtService, ICurrentUserService _currentUserService)
     {
         // Register command
         public async Task<Result<RegisterResultDto>> RegisterAsync(RegisterDto dto, CancellationToken ct = default)
@@ -69,7 +69,14 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             var token = _jwtService.GenerateAccessToken(user.Id, existing.UserName, existing.Role);
 
-            var result = new LoginResultDto { UserId = existing.Id, Token = token };
+            if (user is null)
+            {
+                return Result<LoginResultDto>.Fail(MessageConstant.PROFILE_NOT_FOUND);
+            }
+
+            var token = _jwtService.GenerateAccessToken(user.Id, existing.UserName, existing.Role); // user.Id is the ProfileID
+
+            var result = new LoginResultDto { AccountId = existing.Id, UserId = user.Id, Token = token };
 
             return Result<LoginResultDto>.Success(result);
         }
@@ -105,6 +112,34 @@ namespace AgriConnectMarket.Infrastructure.Services
 
 
             return Result<ChangePasswordResultDto>.Success(result);
+        }
+
+        public async Task<Result<Guid>> DeactiveAccount(CancellationToken ct)
+        {
+            if (_currentUserService.UserId is null)
+            {
+                return Result<Guid>.Fail(MessageConstant.NOTE_AUTHENTICATED_USER);
+            }
+
+            var userId = _currentUserService.UserId.Value;
+            var user = await _uow.ProfileRepository.GetByIdAsync(userId);
+
+            if (user is null)
+            {
+                return Result<Guid>.Fail(MessageConstant.PROFILE_NOT_FOUND);
+            }
+
+            var account = await _uow.AuthenRepository.GetByIdAsync(user.AccountId);
+
+            if (account is null)
+            {
+                return Result<Guid>.Fail(MessageConstant.ACCOUNT_NOT_FOUND);
+            }
+
+            account.IsActive = false;
+            await _uow.AuthenRepository.UpdateAsync(account, ct);
+
+            return Result<Guid>.Success(userId);
         }
 
         // ============ HELPERS ============
