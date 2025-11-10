@@ -67,7 +67,6 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             var user = await _uow.ProfileRepository.GetByAccountIdAsync(existing.Id);
 
-            var token = _jwtService.GenerateAccessToken(user.Id, existing.UserName, existing.Role);
 
             if (user is null)
             {
