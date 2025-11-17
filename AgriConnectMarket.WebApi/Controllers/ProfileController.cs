@@ -2,6 +2,7 @@
 using AgriConnectMarket.Infrastructure.Services;
 using AgriConnectMarket.SharedKernel.Constants;
 using AgriConnectMarket.SharedKernel.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgriConnectMarket.WebApi.Controllers
@@ -24,6 +25,34 @@ namespace AgriConnectMarket.WebApi.Controllers
             return Ok(ApiResponse.SuccessResponse(result.Value, MessageConstant.COMMON_UPDATE_SUCCESS_MESSAGE));
         }
 
+        [HttpGet("")]
+        public async Task<IActionResult> GetCustomerList([FromQuery] string? searchTerm, CancellationToken ct)
+        {
+            dynamic result;
+
+            if (searchTerm is null)
+            {
+                result = await _profileService.GetFullListAsync(ct);
+            }
+            else
+            {
+                result = await _profileService.GetProfilesAsync(searchTerm, ct);
+            }
+
+            if (!result)
+            {
+                return BadRequest(ApiResponse.FailResponse(MessageConstant.UNKNOWN_ERROR));
+            }
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(ApiResponse.FailResponse(result.Error));
+            }
+
+            return Ok(ApiResponse.SuccessResponse(result.Value, MessageConstant.COMMON_RETRIVE_SUCCESS_MESSAGE));
+        }
+
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet("{profileId}")]
         public async Task<IActionResult> GetProfileById([FromRoute] Guid profileId, CancellationToken ct)
         {
