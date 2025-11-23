@@ -13,7 +13,9 @@ namespace AgriConnectMarket.Domain.Entities
 
         public Guid AccountId { get; set; }
         public Account Account { get; set; }
+        public Cart Cart { get; set; }
 
+        public ICollection<Order> Orders { get; set; }
         public ICollection<Address> Addresses { get; set; }
         public ICollection<FavoriteFarm> FavoriteFarms { get; set; }
 
