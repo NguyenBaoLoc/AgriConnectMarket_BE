@@ -87,7 +87,7 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             foreach (var item in dto.OrderItems)
             {
-                var batch = await _uow.ProductBatchRepository.GetByIdAsync(item.BatchId);
+                var batch = await _uow.ProductBatchRepository.GetByIdAsync(item.BatchId, ct);
 
                 if (batch is null)
                 {
@@ -115,27 +115,6 @@ namespace AgriConnectMarket.Infrastructure.Services
             DateTime? deliveredDate = dto.OrderStatus.Equals(OrderStatusEnum.DELIVERED) ? _dateTimeProvider.UtcNow : null;
 
             order.UpdateOrderStatus(dto.OrderStatus, deliveredDate);
-
-            await _uow.OrderRepository.UpdateAsync(order, ct);
-            await _uow.SaveChangesAsync();
-
-            return Result<UpdateOrderStatusResponseDto>.Success(new UpdateOrderStatusResponseDto()
-            {
-                OrderId = order.Id,
-                OrderStatus = order.OrderStatus
-            });
-        }
-
-        public async Task<Result<UpdateOrderStatusResponseDto>> ProcessOrder(Guid orderId, CancellationToken ct = default)
-        {
-            var order = await _uow.OrderRepository.GetByIdAsync(orderId, ct);
-
-            if (order is null)
-            {
-                return Result<UpdateOrderStatusResponseDto>.Fail(MessageConstant.ORDER_NOT_FOUND);
-            }
-
-            order.ProcessOrder();
 
             await _uow.OrderRepository.UpdateAsync(order, ct);
             await _uow.SaveChangesAsync();
