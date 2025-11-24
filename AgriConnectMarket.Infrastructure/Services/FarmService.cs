@@ -92,7 +92,7 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             await _uow.AddressRepository.AddAsync(address);
 
-            var farm = new Farm(dto.FarmName, dto.FarmDesc, dto.BannerUrl, dto.Phone, dto.Area, dto.FarmerId)
+            var farm = new Farm(dto.FarmName, dto.FarmDesc, dto.BatchCodePrefix, dto.BannerUrl, dto.Phone, dto.Area, dto.FarmerId)
             {
                 Address = address
             };
@@ -131,6 +131,7 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             existingFarm.FarmName = dto.FarmName;
             existingFarm.FarmDesc = dto.FarmDesc;
+            existingFarm.BatchCodePrefix = dto.BatchCodePrefix;
             existingFarm.Phone = dto.Phone;
             existingFarm.Area = dto.Area;
             existingFarm.BannerUrl = dto.BannerUrl;
