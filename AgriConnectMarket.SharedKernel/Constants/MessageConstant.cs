@@ -24,10 +24,12 @@
         public const string EXISTING_CATEGORY = "This category already exist!";
         public const string CATEGORY_NOT_FOUND = "Can not found category(s)";
         public const string PRODUCT_NOT_FOUND = "Can not found product(s)";
+        public const string PRODUCT_CONFLICT = "This product already exist, please choose another one!";
         public const string FARM_MISSING_INFO_FOR_SELL = "This farm is missing requirement informations for selling. " +
             "Please ask the farmer provide them or they will not be able to sell their products";
         public const string FARM_SELL_ALLOWING_SUCCESS = "This farm is allowed for selling products successfully!";
         public const string FARM_MARKED_MALL = "This farm is marked as a mall farm successfully!";
+        public const string BATCH_CODE_CONFLICT = "This batch code already exist, please choose another one!";
         public const string BATCH_NOT_FOUND = "Can not found batch(es)";
         public const string FARM_MISSING_PREFIX = "Please configure the prefix before creating a batch";
         public const string FAVORITE_FARM_NOT_FOUND = "Can not found favorite farm(s)";
