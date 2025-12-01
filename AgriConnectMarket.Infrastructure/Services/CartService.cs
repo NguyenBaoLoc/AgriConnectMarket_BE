@@ -58,6 +58,7 @@ namespace AgriConnectMarket.Infrastructure.Services
                                 CategoryName = product.Category.CategoryName,
                                 SeasonName = season.SeasonName,
                                 SeasonStatus = season.Status,
+                                BatchId = batch.Id,
                                 BatchCode = batch.BatchCode.Value,
                                 BatchImageUrls = batch.ImageUrls.Select(item => item.ImageUrl).ToList(),
                                 BatchPrice = batch.Price,
@@ -102,7 +103,7 @@ namespace AgriConnectMarket.Infrastructure.Services
                 await _uow.SaveChangesAsync();
             }
 
-            var batch = await _uow.ProductBatchRepository.GetByIdAsync(dto.BatchId, ct);
+            var batch = await _uow.ProductBatchRepository.GetByIdAsync(dto.BatchId, false, true, ct);
 
             if (batch is null)
                 return Result<CartItem>.Fail(MessageConstant.BATCH_NOT_FOUND);
