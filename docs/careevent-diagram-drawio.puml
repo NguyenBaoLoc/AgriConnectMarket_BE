@@ -1,0 +1,237 @@
+@startuml
+' Draw.io-friendly PlantUML (no angle-bracket generics)
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+left to right direction
+skinparam linetype ortho
+
+' Controller
+class CareEventController {
+  -_eventService: CareEventService
+  +CreateEvent(dto: CreateCareEventDto, ct: CancellationToken) : Task<IActionResult>
+}
+
+' Service
+class CareEventService {
+  -_uow: IUnitOfWork
+  -_dateTimeProvider: IDateTimeProvider
+  -_hasher: IHashingStrategy
+  +CreateCareEventAsync(dto: CreateCareEventDto, ct: CancellationToken = default) : Task<Result_CreateCareEventResultDto>
+  +GetCareEventsByBatchAsync(batchId: Guid, ct: CancellationToken = default) : Task<Result_IReadOnlyList_CareEventResponseDto>
+  +VerifyBatchChainAsync(batchId: Guid, ct: CancellationToken = default) : Task<Result_Bool>
+}
+
+' Request DTO
+class CreateCareEventDto {
+  +BatchId: Guid
+  +EventTypeId: Guid
+  +Payload: string
+}
+
+' Response DTOs
+class CreateCareEventResultDto {
+  +OccurredAt: DateTime
+  +Payload: string
+  +EventType: CareEventType
+  +Batch: ProductBatch
+}
+
+class CareEventResponseDto {
+  +Id: Guid
+  +BatchId: Guid
+  +EventTypeId: Guid
+  +OccurredAt: DateTime
+  +Payload: string
+  +Hash: string
+  +PrevHash: string
+}
+
+' ApiResponse / Result helpers (draw.io friendly names)
+class ApiResponse_T {
+  +Success : bool {init}
+  +Message : string {init}
+  +Data : Object? {init}
+  +SuccessResponse(data: Object, message: string = "Success") : ApiResponse_T
+  +FailResponse(message: string) : ApiResponse_T
+}
+class ApiResponse {
+  +Success(message: string = "Success") : ApiResponse
+  +Fail(message: string) : ApiResponse
+}
+ApiResponse <|-- ApiResponse_T
+
+class Result_T {
+  +IsSuccess : bool {get}
+  +Error : string {get}
+  +Value : Object? {get}
+  +Success(value: Object) : Result_T
+  +Fail(error: string) : Result_T
+}
+class Result {
+  +IsSuccess : bool {get}
+  +Error : string? {get}
+  +Success() : Result
+  +Fail(error: string) : Result
+}
+
+' Repositories and UnitOfWork (generic names changed)
+interface IRepository_T {
+  +GetByIdAsync(id: object, cancellationToken: CancellationToken = default) : Task<Object?>
+  +ListAllAsync(cancellationToken: CancellationToken = default) : Task<IReadOnlyList<Object>>
+  +AddAsync(entity: Object, cancellationToken: CancellationToken = default) : Task<Object>
+  +UpdateAsync(entity: Object, cancellationToken: CancellationToken = default) : Task
+  +DeleteAsync(entity: Object, cancellationToken: CancellationToken = default) : Task
+  +ListAsync(spec: ISpecification, cancellationToken: CancellationToken = default) : Task<IReadOnlyList<Object>>
+  +FirstOrDefaultAsync(spec: ISpecification, cancellationToken: CancellationToken = default) : Task<Object?>
+  +CountAsync(spec: ISpecification, cancellationToken: CancellationToken = default) : Task<int>
+}
+
+interface IProductBatchRepository {
+  +GetByIdAsync(batchId: Guid, includeSeason: bool = false, includeReview: bool = false, withoutTracking: bool = false, ct: CancellationToken = default) : Task<ProductBatch>
+  +GetByIdAsync(batchId: Guid, includeAllRelated: bool = false, withoutTracking: bool = false, ct: CancellationToken = default) : Task<ProductBatch>
+  +GetBySeasonAsync(seasonId: Guid, includeSeason: bool = false, ct: CancellationToken = default) : Task<IEnumerable<ProductBatch>>
+  +GetByFarmAsync(farmId: Guid, includeSeason: bool = false, ct: CancellationToken = default) : Task<IEnumerable<ProductBatch>>
+  +GetByFarmerAsync(farmerId: Guid, includeAllRelated: bool = false, ct: CancellationToken = default) : Task<IEnumerable<ProductBatch>>
+}
+IProductBatchRepository ..|> IRepository_T
+
+interface IEventTypeRepository {
+}
+IEventTypeRepository ..|> IRepository_T
+
+interface ICareEventRepository {
+  +GetLastByBatchIdAsync(batchId: Guid, ct: CancellationToken) : Task<CareEvent>
+  +GetAllByBatchAsync(batchId: Guid, ct: CancellationToken) : Task<IReadOnlyList<CareEvent>>
+  +GetPreviousEventAsync(batchId: Guid, ct: CancellationToken) : Task<IReadOnlyList<CareEvent>>
+}
+ICareEventRepository ..|> IRepository_T
+
+class IUnitOfWork {
+  +AuthenRepository : IAuthenRepository
+  +ProfileRepository : IProfileRepository
+  +FarmRepository : IFarmRepository
+  +AddressRepository : IAddressRepository
+  +CategoryRepository : ICategoryRepository
+  +SeasonRepository : ISeasonRepository
+  +ProductRepository : IProductRepository
+  +ProductBatchRepository : IProductBatchRepository
+  +FavoriteFarmRepository : IFavoriteFarmRepository
+  +CartRepository : ICartRepository
+  +CartItemRepository : ICartItemRepository
+  +OrderRepository : IOrderRepository
+  +OrderItemRepository : IOrderItemRepository
+  +PreOrderRepository : IPreOrderRepository
+  +EventTypeRepository : IEventTypeRepository
+  +CareEventRepository : ICareEventRepository
+  +SaveChangesAsync(cancellationToken: CancellationToken = default) : Task<int>
+}
+
+' Domain entities
+class CareEvent {
+  +Id : Guid
+  +BatchId : Guid
+  +EventTypeId : Guid
+  +OccurredAt : DateTime
+  +Payload : string
+  +Hash : string {private set}
+  +PrevHash : string {private set}
+  +EventType : CareEventType
+  +Batch : ProductBatch
+  +Create(batchId: Guid, typeId: Guid, occurredAt: DateTime, payload: string, hash: string, prevHash: string) : CareEvent
+}
+
+class ProductBatch {
+  +Id : Guid
+  +BatchCode : BatchCode
+  +TotalYield : decimal
+  +AvailableQuantity : decimal
+  +Units : string
+  +Price : decimal
+  +PlantingDate : DateTime
+  +HarvestDate : DateTime
+  +SeasonId : Guid
+  +Season : Season
+  +PreOrders : ICollection<PreOrder>
+  +OrderItems : ICollection<OrderItem>
+  +CartItems : ICollection<CartItem>
+  +ImageUrls : IReadOnlyCollection<ProductBatchImage>
+  +CreatedAt : DateTime
+  +CreatedBy : string?
+  +UpdatedAt : DateTime?
+  +UpdatedBy : string?
+  +Create(seasonId: Guid, totalYield: decimal, availableQuantity: decimal, plantingDate: DateTime, price: decimal, units: string = "kg") : ProductBatch
+  +SetBatchCode(code: BatchCode) : void
+  +UpdateInventory(soldQuantity: decimal) : void
+  +AddImage(image: ProductBatchImage) : void
+}
+
+class CareEventType {
+  +Id : Guid
+  +EventTypeName : string
+  +EventTypeDesc : string
+  +CareEvents : ICollection<CareEvent>
+  +Create(name: string, description: string) : CareEventType
+}
+
+class BaseEntity_TId {
+  +Id : Object {protected set}
+  +Equals(obj: object?) : bool
+  +GetHashCode() : int
+}
+
+interface IAuditableEntity {
+  +CreatedAt : DateTime
+  +CreatedBy : string?
+  +UpdatedAt : DateTime?
+  +UpdatedBy : string?
+}
+ProductBatch ..|> IAuditableEntity
+
+' Hashing & Date provider implementations
+interface IHashingStrategy {
+  +ComputeHash(input: string) : string
+  +BuildCareEventCanonical(batchId: string, eventKey: string, dataJson: string, occuredAt: string, previousHash: string) : string
+}
+class Sha256Hashing {
+  +ComputeHash(input: string) : string
+  +BuildCareEventCanonical(batchId: string, eventKey: string, dataJson: string, occuredAt: string, previousHash: string) : string
+}
+Sha256Hashing ..|> IHashingStrategy
+
+interface IDateTimeProvider {
+  +UtcNow : DateTime
+}
+class SystemDateTimeProvider {
+  +UtcNow : DateTime
+}
+SystemDateTimeProvider ..|> IDateTimeProvider
+
+' Message constants
+class MessageConstant <<static>> {
+  +BATCH_NOT_FOUND : string
+  +EVENT_TYPE_NOT_FOUND : string
+  +CARE_EVENT_NOTE_FOUND : string
+  +INVALID_CHAIN : string
+  +... (other messages)
+}
+
+' Associations
+CareEventController --> CareEventService : uses
+CareEventService --> IUnitOfWork : uses
+CareEventService --> IHashingStrategy : uses
+CareEventService --> IDateTimeProvider : uses
+IUnitOfWork o-- IProductBatchRepository
+IUnitOfWork o-- IEventTypeRepository
+IUnitOfWork o-- ICareEventRepository
+CareEvent o-- CareEventType : "eventType (1)"
+CareEvent o-- ProductBatch : "batch (1)"
+CreateCareEventResultDto --> CareEventType
+CreateCareEventResultDto --> ProductBatch
+
+note top of CareEventController
+Private ( - ): Chỉnh mình các đối tượng được tạo từ class này có thể sử dụng.
+Public ( + ): Mọi đối tượng đều có thể sử dụng.
+end note
+
+@enduml
