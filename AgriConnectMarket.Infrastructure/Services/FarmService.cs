@@ -44,7 +44,7 @@ namespace AgriConnectMarket.Infrastructure.Services
         {
             Guard.AgainstNull(farmId, nameof(farmId));
 
-            var farm = await _uow.FarmRepository.GetByIdAsync(farmId, ct);
+            var farm = await _uow.FarmRepository.GetByIdAsync(farmId, true, true, true, ct);
 
             if (farm is null || farm.IsDelete)
             {
@@ -72,9 +72,14 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             var farm = await _uow.FarmRepository.GetFarmByAccount(user.AccountId, true, true, true);
 
-            if (farm == null)
+            if (farm == null || farm.IsDelete)
             {
                 return Result<Farm>.Fail(MessageConstant.FARM_NOT_FOUND);
+            }
+
+            if (farm.IsBanned)
+            {
+                return Result<Farm>.Fail(MessageConstant.FARM_BANNED);
             }
 
             return Result<Farm>.Success(farm);
@@ -125,7 +130,7 @@ namespace AgriConnectMarket.Infrastructure.Services
         {
             Guard.AgainstNull(farmId, nameof(farmId));
 
-            var existingFarm = await _uow.FarmRepository.GetByIdAsync(farmId);
+            var existingFarm = await _uow.FarmRepository.GetByIdAsync(farmId, true, true, true, ct);
 
             if (existingFarm is null)
             {
@@ -143,8 +148,9 @@ namespace AgriConnectMarket.Infrastructure.Services
             existingFarm.Phone = dto.Phone;
             existingFarm.Area = dto.Area;
             existingFarm.BannerUrl = dto.BannerUrl;
+            existingFarm.BatchCodePrefix = existingFarm.BatchCodePrefix;
 
-            if (isAddressChanged)
+            if (false) // if (isAddressChanged)
             {
                 var address = await _uow.AddressRepository.GetByIdAsync(existingFarm.AddressId);
 
@@ -247,6 +253,41 @@ namespace AgriConnectMarket.Infrastructure.Services
             await _uow.SaveChangesAsync();
 
             return Result<Farm>.Success(farm);
+        }
+
+        public async Task<Result<Farm>> GetFarmsByAccountAsync(Guid accountId, CancellationToken ct = default)
+        {
+            var farm = await _uow.FarmRepository.GetFarmByAccount(accountId, true, true, true);
+
+            if (farm is null)
+            {
+                return Result<Farm>.Fail(MessageConstant.FARM_NOT_FOUND);
+            }
+
+            return Result<Farm>.Success(farm);
+        }
+
+        public async Task<Result<IEnumerable<FeaturedFarmResponseDto>>> GetFeaturedFarms(CancellationToken ct = default)
+        {
+            var orders = await _uow.OrderItemRepository.ListAllAsync(ct);
+
+            if (!orders.Any())
+            {
+                return Result<IEnumerable<FeaturedFarmResponseDto>>.Success([]);
+            }
+
+            var farms = orders.GroupBy(o =>
+            {
+                var farm = o.Batch.Season.Farm;
+
+                return new FeaturedFarmResponseDto(farm.Id, farm.FarmName, farm.FarmDesc ?? "", farm.BannerUrl ?? "", farm.FarmName, farm.Phone ?? "", farm.IsConfirmAsMall);
+            })
+            .OrderByDescending(g => g.Count())
+            .Select(g => g.Key)
+            .ToList()
+            .Take(5);
+
+            return Result<IEnumerable<FeaturedFarmResponseDto>>.Success(farms);
         }
 
         // HELPER

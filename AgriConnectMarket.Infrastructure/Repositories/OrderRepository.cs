@@ -1,7 +1,9 @@
 ﻿using AgriConnectMarket.Application.Interfaces;
 using AgriConnectMarket.Domain.Entities;
 using AgriConnectMarket.Infrastructure.Data;
+using AgriConnectMarket.Infrastructure.Specifications;
 using AgriConnectMarket.SharedKernel.Constants;
+using AgriConnectMarket.SharedKernel.Specifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace AgriConnectMarket.Infrastructure.Repositories
@@ -35,6 +37,8 @@ namespace AgriConnectMarket.Infrastructure.Repositories
             {
                 query = query.Include(o => o.Customer);
             }
+
+            query = query.OrderByDescending(o => o.OrderDate);
 
             return await query.ToListAsync();
         }
@@ -155,6 +159,13 @@ namespace AgriConnectMarket.Infrastructure.Repositories
             }
 
             return await query.FirstOrDefaultAsync(ct);
+        }
+
+        public async Task<IEnumerable<Order>> GetByProfileId(Guid profileId, ISpecification<Order> spec, CancellationToken ct)
+        {
+            var query = SpecificationEvaluator.GetQuery(_dbContext.Set<Order>().AsQueryable(), spec);
+
+            return await query.Where(o => o.CustomerId == profileId).ToListAsync();
         }
     }
 }
