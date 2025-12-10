@@ -1,6 +1,7 @@
 ﻿using AgriConnectMarket.Application.DTOs.RequestDtos;
 using AgriConnectMarket.Application.DTOs.ResponseDtos;
 using AgriConnectMarket.Application.Interfaces;
+using AgriConnectMarket.Application.Specifications.OrderSpecs;
 using AgriConnectMarket.Domain.Entities;
 using AgriConnectMarket.SharedKernel.Constants;
 using AgriConnectMarket.SharedKernel.Interfaces;
@@ -12,7 +13,7 @@ namespace AgriConnectMarket.Infrastructure.Services
     {
         public async Task<Result<IEnumerable<Order>>> GetAllOrdersAsync(CancellationToken ct = default)
         {
-            var orders = await _uow.OrderRepository.ListAllAsync(ct);
+            var orders = await _uow.OrderRepository.ListAsync(new SortOrderByCreatedDateSpecification(), ct);
 
             if (!orders.Any())
             {
@@ -185,11 +186,23 @@ namespace AgriConnectMarket.Infrastructure.Services
 
         public async Task<Result<UpdateOrderStatusResponseDto>> UpdateOrderStatus(Guid orderId, UpdateOrderStatusDto dto, CancellationToken ct = default)
         {
-            var order = await _uow.OrderRepository.GetByIdAsync(orderId, ct);
+            var order = await _uow.OrderRepository.GetByIdAsync(orderId,true, false, false, ct);
 
             if (order is null)
             {
                 return Result<UpdateOrderStatusResponseDto>.Fail(MessageConstant.ORDER_NOT_FOUND);
+            }
+
+            if (dto.OrderStatus.Equals(OrderStatusEnum.PROCESSING))
+            {
+                foreach (var item in order.OrderItems)
+                {
+                    var existingItem = await _uow.ProductBatchRepository.GetByIdAsync(item.BatchId, ct);
+
+                    existingItem!.AvailableQuantity -= item.Quantity;
+
+                    await _uow.SaveChangesAsync(ct);
+                }
             }
 
             DateTime? deliveredDate = dto.OrderStatus.Equals(OrderStatusEnum.DELIVERED) ? _dateTimeProvider.UtcNow : null;
@@ -227,16 +240,28 @@ namespace AgriConnectMarket.Infrastructure.Services
             });
         }
 
+        public async Task<Result<IEnumerable<Order>>> GetByProfileAsync(Guid profileId, CancellationToken ct = default)
+        {
+            var orders = await _uow.OrderRepository.GetByProfileId(profileId, new InlcudeOrderItemAddressInOrderSpecification(), ct);
+
+            if (!orders.Any())
+            {
+                return Result<IEnumerable<Order>>.Success([]);
+            }
+
+            return Result<IEnumerable<Order>>.Success(orders);
+        }
+
         public async Task<Result<CreatePreOrderResponseDto>> CreatePreOrder(CreatePreOrderDto dto, CancellationToken ct = default)
         {
-            var customer = await _uow.ProfileRepository.GetByIdAsync(dto.CustomerId);
+            var customer = await _uow.ProfileRepository.GetByIdAsync(dto.CustomerId, ct);
 
             if (customer is null)
             {
                 return Result<CreatePreOrderResponseDto>.Fail(MessageConstant.PROFILE_NOT_FOUND);
             }
 
-            var product = await _uow.ProductRepository.GetByIdAsync(dto.ProductId);
+            var product = await _uow.ProductRepository.GetByIdAsync(dto.ProductId, ct);
 
             if (product is null)
             {
@@ -248,8 +273,8 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             var preOrder = PreOrder.Create(order, dto.ProductId, dto.Quantity, dto.Note!);
 
-            await _uow.PreOrderRepository.AddAsync(preOrder);
-            await _uow.SaveChangesAsync();
+            await _uow.PreOrderRepository.AddAsync(preOrder, ct);
+            await _uow.SaveChangesAsync(ct);
 
             var response = new CreatePreOrderResponseDto()
             {
@@ -258,7 +283,6 @@ namespace AgriConnectMarket.Infrastructure.Services
                 OrderStatus = order.OrderStatus,
                 OrderDate = order.OrderDate,
                 PaymentStatus = order.PaymentStatus,
-                PartiallyPaidAmount = preOrder.PartiallyPaidAmount,
                 PaidDate = order.PaidDate,
                 Note = preOrder.Note,
                 Product = product,
@@ -267,6 +291,56 @@ namespace AgriConnectMarket.Infrastructure.Services
             };
 
             return Result<CreatePreOrderResponseDto>.Success(response);
+        }
+
+        public async Task<Result<ProcessOrderResponseDto>> ProcessOrder(Guid orderId, CancellationToken ct = default)
+        {
+            var order = await _uow.OrderRepository.GetByIdAsync(orderId, ct);
+
+            if (order is null)
+            {
+                return Result<ProcessOrderResponseDto>.Fail(MessageConstant.ORDER_NOT_FOUND);
+            }
+
+            order.ProcessOrder();
+
+            await _uow.OrderRepository.UpdateAsync(order, ct);
+            await _uow.SaveChangesAsync(ct);
+
+            return Result<ProcessOrderResponseDto>.Success(new ProcessOrderResponseDto(orderId, order.OrderStatus));
+        }
+
+        public async Task<Result<Guid>> ApprovePreOrder(Guid orderId, CancellationToken ct = default)
+        {
+            var order = await _uow.PreOrderRepository.GetByIdAsync(orderId, ct);
+
+            if (order is null)
+            {
+                return Result<Guid>.Fail(MessageConstant.ORDER_NOT_FOUND);
+            }
+
+            order.Approve(DateTime.UtcNow);
+
+            await _uow.PreOrderRepository.UpdateAsync(order, ct);
+            await _uow.SaveChangesAsync(ct);
+
+            return Result<Guid>.Success(order.OrderId);
+        }
+
+        public async Task<Result<Guid>> DeclinePreOrder(Guid orderId, CancellationToken ct = default)
+        {
+            var order = await _uow.PreOrderRepository.GetByIdAsync(orderId, ct);
+
+            if (order is null)
+            {
+                return Result<Guid>.Fail(MessageConstant.ORDER_NOT_FOUND);
+            }
+
+            await _uow.PreOrderRepository.DeleteAsync(order, ct);
+            await _uow.OrderRepository.DeleteAsync(order.Order, ct);
+            await _uow.SaveChangesAsync(ct);
+
+            return Result<Guid>.Success(order.OrderId);
         }
 
         /***

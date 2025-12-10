@@ -64,6 +64,7 @@ namespace AgriConnectMarket.Infrastructure.Services
                                 BatchPrice = batch.Price,
                                 Units = batch.Units,
                                 Quantity = i.Quantity,
+                                IsOutOfStock = batch.AvailableQuantity - i.Quantity < 0,
                                 ItemPrice = i.ItemPrice
                             };
                         }).ToList()
@@ -107,6 +108,11 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             if (batch is null)
                 return Result<CartItem>.Fail(MessageConstant.BATCH_NOT_FOUND);
+
+            if (batch.AvailableQuantity - dto.Quantity <= 0)
+            {
+                return Result<CartItem>.Fail(MessageConstant.OUT_OF_STOCK);
+            }
 
             decimal unitPrice = batch.Price;
 
@@ -191,7 +197,7 @@ namespace AgriConnectMarket.Infrastructure.Services
                 return Result<Cart>.Fail(MessageConstant.NOT_AUTHENTICATED_USER);
 
             var userId = _currentUserService.UserId.Value;
-            var profile = await _uow.ProfileRepository.GetByIdAsync(userId, ct);
+            var profile = await _uow.ProfileRepository.GetByIdAsync(userId, true, ct);
 
             if (profile is null)
                 return Result<Cart>.Fail(MessageConstant.PROFILE_ID_NOT_FOUND);
@@ -200,6 +206,8 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             cart.DeleteAllFromCart();
 
+            await _uow.CartRepository.UpdateAsync(cart, ct);
+            await _uow.SaveChangesAsync(ct);
 
             return Result<Cart>.Success(cart);
         }

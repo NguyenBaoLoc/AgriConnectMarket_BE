@@ -20,7 +20,7 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             if (!batches.Any())
             {
-                return Result<IEnumerable<ProductBatchResponseDto>>.Fail(MessageConstant.BATCH_NOT_FOUND);
+                return Result<IEnumerable<ProductBatchResponseDto>>.Success([]);
             }
 
             var responseDto = batches.ToList().Select(b =>
@@ -76,7 +76,7 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             if (!batches.Any())
             {
-                return Result<IEnumerable<ProductBatchResponseDto>>.Fail(MessageConstant.BATCH_NOT_FOUND);
+                return Result<IEnumerable<ProductBatchResponseDto>>.Success([]);
             }
 
             var responseDto = batches.Select(b =>
@@ -108,7 +108,7 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             if (!batches.Any())
             {
-                return Result<IEnumerable<ProductBatch>>.Fail(MessageConstant.BATCH_NOT_FOUND);
+                return Result<IEnumerable<ProductBatch>>.Success([]);
             }
 
             return Result<IEnumerable<ProductBatch>>.Success(batches);
@@ -128,11 +128,11 @@ namespace AgriConnectMarket.Infrastructure.Services
 
         public async Task<Result<IEnumerable<ProductBatch>>> GetBatchByFarmIdAsync(Guid farmId, CancellationToken ct = default)
         {
-            var batch = await _uow.ProductBatchRepository.GetByFarmAsync(farmId);
+            var batch = await _uow.ProductBatchRepository.GetByFarmAsync(farmId, true, ct);
 
-            if (batch is null)
+            if (!batch.Any())
             {
-                return Result<IEnumerable<ProductBatch>>.Fail(MessageConstant.BATCH_NOT_FOUND);
+                return Result<IEnumerable<ProductBatch>>.Success([]);
             }
 
             return Result<IEnumerable<ProductBatch>>.Success(batch);
@@ -142,9 +142,9 @@ namespace AgriConnectMarket.Infrastructure.Services
         {
             var batch = await _uow.ProductBatchRepository.GetByFarmerAsync(accountId);
 
-            if (batch is null)
+            if (!batch.Any())
             {
-                return Result<IEnumerable<ProductBatch>>.Fail(MessageConstant.BATCH_NOT_FOUND);
+                return Result<IEnumerable<ProductBatch>>.Success([]);
             }
 
             return Result<IEnumerable<ProductBatch>>.Success(batch);

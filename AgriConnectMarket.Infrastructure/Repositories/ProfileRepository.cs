@@ -47,5 +47,20 @@ namespace AgriConnectMarket.Infrastructure.Repositories
 
             return await query.FirstOrDefaultAsync();
         }
+        public async Task<Profile?> GetByIdAsync(Guid profileId, bool includeCart = false, CancellationToken ct = default)
+        {
+            var query = _dbContext.Set<Profile>()
+                .Include(p => p.Account)
+                .Include(p => p.Addresses)
+                .Where(u => u.Id == profileId);
+
+            if (includeCart)
+            {
+                query = query.Include(u => u.Cart);
+            }
+
+            return await query.FirstOrDefaultAsync(ct);
+        }
+
     }
 }
