@@ -1,6 +1,8 @@
 ﻿using AgriConnectMarket.Application.Interfaces;
 using AgriConnectMarket.Domain.Entities;
 using AgriConnectMarket.Infrastructure.Data;
+using AgriConnectMarket.Infrastructure.Specifications;
+using AgriConnectMarket.SharedKernel.Specifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace AgriConnectMarket.Infrastructure.Repositories
@@ -29,6 +31,24 @@ namespace AgriConnectMarket.Infrastructure.Repositories
             return await query.ToListAsync();
         }
 
+        public async Task<IReadOnlyList<ProductBatch>> ListAsync(ISpecification<ProductBatch> spec, bool includeRelated = false, CancellationToken cancellationToken = default)
+        {
+            var query = SpecificationEvaluator.GetQuery(_dbContext.Set<ProductBatch>().AsQueryable(), spec);
+
+            if (includeRelated)
+            {
+                query = query
+                .Include(b => b.Season)
+                    .ThenInclude(s => s.Farm)
+                        .ThenInclude(f => f.Address)
+                .Include(b => b.Season)
+                    .ThenInclude(s => s.Product)
+                        .ThenInclude(p => p.Category);
+            }
+
+            return await query.AsNoTracking().ToListAsync(cancellationToken);
+        }
+
         public async Task<IEnumerable<ProductBatch>> GetBySeasonAsync(Guid seasonId, bool includeSeason = false, CancellationToken ct = default)
         {
             var query = _dbContext.Set<ProductBatch>().Where(pb => pb.SeasonId.Equals(seasonId));
@@ -51,7 +71,8 @@ namespace AgriConnectMarket.Infrastructure.Repositories
             {
                 query = query
                     .Include(pb => pb.Season)
-                        .ThenInclude(s => s.Product);
+                        .ThenInclude(s => s.Product)
+                    .Include(pb => pb.ImageUrls);
             }
 
             return await query.ToListAsync(ct);
@@ -71,7 +92,8 @@ namespace AgriConnectMarket.Infrastructure.Repositories
                 query = query.Include(b => b.Season)
                     .ThenInclude(s => s.Farm)
                 .Include(b => b.Season)
-                    .ThenInclude(s => s.Product);
+                    .ThenInclude(s => s.Product)
+                .Include(b => b.ImageUrls);
             }
 
             return await query.FirstOrDefaultAsync(ct);

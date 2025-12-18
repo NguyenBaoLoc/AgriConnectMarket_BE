@@ -8,6 +8,7 @@ using AgriConnectMarket.SharedKernel.Constants;
 using AgriConnectMarket.SharedKernel.Interfaces;
 using AgriConnectMarket.SharedKernel.Result;
 using AgriConnectMarket.SharedKernel.Specifications;
+using Microsoft.Extensions.FileSystemGlobbing;
 using System.Data;
 
 namespace AgriConnectMarket.Infrastructure.Services
@@ -32,6 +33,7 @@ namespace AgriConnectMarket.Infrastructure.Services
                     b.Season.Product.ProductName,
                     b.Season.SeasonName,
                     b.Season.Farm.FarmName,
+                    b.Season?.Product?.Category?.CategoryName,
                     b.CreatedAt,
                     b.PlantingDate,
                     b.HarvestDate,
@@ -48,7 +50,12 @@ namespace AgriConnectMarket.Infrastructure.Services
 
         public async Task<Result<IEnumerable<ProductBatchResponseDto>>> GetSellingBatches(ProductBatchQuery query, CancellationToken ct = default)
         {
-            ISpecification<ProductBatch> specs;
+            int pageNumber = query.pageNumber is not null ? (int)query.pageNumber : 1;
+            int pageSize = query.pageSize is not null ? (int)query.pageSize : 10;
+
+            int skip = (pageNumber - 1) * pageSize;
+
+            ISpecification<ProductBatch> specs = new FilterProductBatchByPaginationSpecification(skip, pageSize);
 
             if (query.searchTerm is not null)
             {
@@ -65,14 +72,7 @@ namespace AgriConnectMarket.Infrastructure.Services
                 specs = new SortingProductBatchSpecification((bool)query.isDesc);
             }
 
-            int pageNumber = query.pageNumber is not null ? (int)query.pageNumber : 1;
-            int pageSize = query.pageSize is not null ? (int)query.pageSize : 10;
-
-            int skip = (pageNumber - 1) * pageSize;
-
-            specs = new FilterProductBatchByPaginationSpecification(skip, pageSize);
-
-            var batches = await _uow.ProductBatchRepository.ListAllAsync(true, ct);
+            var batches = await _uow.ProductBatchRepository.ListAsync(specs, true, ct);
 
             if (!batches.Any())
             {
@@ -85,9 +85,10 @@ namespace AgriConnectMarket.Infrastructure.Services
                 return new ProductBatchResponseDto(
                     b.Id,
                     b.BatchCode.Value,
-                    b.Season.Product.ProductName,
-                    b.Season.SeasonName,
-                    b.Season.Farm.FarmName,
+                    b.Season?.Product?.ProductName,
+                    b.Season?.SeasonName,
+                    b.Season?.Product?.Category?.CategoryName,
+                    b.Season?.Farm?.FarmName,
                     b.CreatedAt,
                     b.PlantingDate,
                     b.HarvestDate,
@@ -134,6 +135,27 @@ namespace AgriConnectMarket.Infrastructure.Services
             {
                 return Result<IEnumerable<ProductBatch>>.Success([]);
             }
+
+            var responseDto = batch.Select(b =>
+            {
+                List<string> urls = b.ImageUrls.Select(i => i.ImageUrl).ToList();
+                return new ProductBatchResponseDto(
+                    b.Id,
+                    b.BatchCode.Value,
+                    b.Season?.Product?.ProductName,
+                    b.Season?.SeasonName,
+                    b.Season?.Product?.Category?.CategoryName,
+                    b.Season?.Farm?.FarmName,
+                    b.CreatedAt,
+                    b.PlantingDate,
+                    b.HarvestDate,
+                    b.TotalYield,
+                    b.AvailableQuantity,
+                    b.Price,
+                    b.Units,
+                    urls
+                );
+            }).ToList();
 
             return Result<IEnumerable<ProductBatch>>.Success(batch);
         }
