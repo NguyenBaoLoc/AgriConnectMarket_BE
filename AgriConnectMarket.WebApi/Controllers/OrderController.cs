@@ -1,5 +1,6 @@
 ﻿using AgriConnectMarket.Application.DTOs.RequestDtos;
 using AgriConnectMarket.Infrastructure.Services;
+using AgriConnectMarket.SharedKernel.Constants;
 using AgriConnectMarket.SharedKernel.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ namespace AgriConnectMarket.WebApi.Controllers
 {
     [Route("api/orders")]
     [ApiController]
-    public class OrderController(OrderService _orderService, VnPayService _vnPayService) : ControllerBase
+    public class OrderController(OrderService _orderService, VnPayService _vnPayService, NotificationService _notificationService, FarmService _farmService, ProfileService _profileService) : ControllerBase
     {
         [HttpPost("")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto, CancellationToken ct)
@@ -18,6 +19,19 @@ namespace AgriConnectMarket.WebApi.Controllers
             if (!result.IsSuccess)
             {
                 return BadRequest(ApiResponse.FailResponse(result.Error));
+            }
+
+            foreach (var farmGroup in result.Value.OrderItems)
+            {
+                var farm = await _farmService.GetFarmById(farmGroup.FarmId);
+                var farmerProfile = await _profileService.GetProfileByAccountId(farm.Value.FarmerId);
+                var createNotificationDto = new CreateNotificationDto(
+                    type: nameof(NotificationTypeEnum.ORDER_PLACED),
+                    profileId: farmerProfile.Value.Id,
+                    orderId: result.Value.OrderId
+                );
+
+                await _notificationService.CreateNotificationAsync(createNotificationDto, ct);
             }
 
             return Ok(ApiResponse.SuccessResponse(result.Value));
@@ -177,6 +191,14 @@ namespace AgriConnectMarket.WebApi.Controllers
             {
                 return BadRequest(ApiResponse.FailResponse(result.Error));
             }
+
+            var createNotificationDto = new CreateNotificationDto(
+                type: nameof(NotificationTypeEnum.ORDER_UPDATED),
+                profileId: result.Value.CustomerId,
+                orderId: result.Value.OrderId
+            );
+
+            await _notificationService.CreateNotificationAsync(createNotificationDto, ct);
 
             return Ok(ApiResponse.SuccessResponse(result.Value));
         }

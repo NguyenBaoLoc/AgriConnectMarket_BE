@@ -158,5 +158,16 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             return Result<IEnumerable<Address>>.Success(addresses);
         }
+        public async Task<Result<IEnumerable<Address>>> GetAllFarmAddressesAsync(CancellationToken ct = default)
+        {
+            var addresses = await _uow.AddressRepository.GetAllFarmAddressesAsync();
+
+            if (!addresses.Any())
+            {
+                return Result<IEnumerable<Address>>.Fail(MessageConstant.ADDRESS_NOT_FOUND);
+            }
+
+            return Result<IEnumerable<Address>>.Success(addresses);
+        }
     }
 }

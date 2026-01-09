@@ -29,6 +29,7 @@ namespace AgriConnectMarket.Domain.Entities
         public PreOrder PreOrder { get; set; }
         public Address Address { get; set; }
         public Transaction Transaction { get; set; }
+        public ICollection<Notification> Notifications { get; set; }
 
         private readonly List<OrderItem> _orderItems = new();
         public IReadOnlyCollection<OrderItem> OrderItems => _orderItems.AsReadOnly();

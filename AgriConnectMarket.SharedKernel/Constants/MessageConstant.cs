@@ -52,5 +52,6 @@
         public const string PASSWORD_UPDATE_SUCCESS = "Your password is updated successfully. Please login again";
         public const string OUT_OF_STOCK = "Out of stock";
         public const string CAN_NOT_PROCESS_UNPAID_ORDER = "This order did not paid yet and you can't process it to the next step";
+        public const string NOTIFICATION_NOT_FOUND = "Can not find notification(s)";
     }
 }

@@ -7,5 +7,6 @@ namespace AgriConnectMarket.Application.Interfaces
         public Task<Address> GetAddressByProfileIdAsync(Guid profileId, bool includeProfile = false);
         public Task<Address> GetDefaultAddressAsync(bool includeProfile = false, CancellationToken ct = default);
         public Task<IEnumerable<Address>> GetAddressesByProfileIdAsync(Guid profileId, bool includeProfile = false);
+        public Task<IEnumerable<Address>> GetAllFarmAddressesAsync();
     }
 }
