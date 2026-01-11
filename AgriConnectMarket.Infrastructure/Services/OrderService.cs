@@ -212,7 +212,6 @@ namespace AgriConnectMarket.Infrastructure.Services
                     ? null
                     : new TransactionDto(
                         order.Transaction.TransactionRef,
-                        order.Transaction.TransactionNo,
                         order.Transaction.BankCode,
                         order.Transaction.Amount,
                         order.Transaction.Status,
@@ -340,7 +339,7 @@ namespace AgriConnectMarket.Infrastructure.Services
 
         public async Task<Result<ProcessOrderResponseDto>> ProcessOrder(Guid orderId, CancellationToken ct = default)
         {
-            var order = await _uow.OrderRepository.GetByIdAsync(orderId, ct);
+            var order = await _uow.OrderRepository.GetByIdAsync(orderId, true, true, ct: ct);
 
             if (order is null)
             {
@@ -352,7 +351,9 @@ namespace AgriConnectMarket.Infrastructure.Services
             await _uow.OrderRepository.UpdateAsync(order, ct);
             await _uow.SaveChangesAsync(ct);
 
-            return Result<ProcessOrderResponseDto>.Success(new ProcessOrderResponseDto(orderId, order.OrderStatus));
+            var response = new ProcessOrderResponseDto(orderId, order.OrderStatus);
+
+            return Result<ProcessOrderResponseDto>.Success(response);
         }
 
         public async Task<Result<Guid>> ApprovePreOrder(Guid orderId, ApprovePreOrder dto, CancellationToken ct = default)
