@@ -55,7 +55,7 @@ namespace AgriConnectMarket.Infrastructure.Services
                 await _uow.FavoriteFarmRepository.DeleteAsync(existing, ct);
                 await _uow.SaveChangesAsync(ct);
 
-                return Result<string>.Fail("removed");
+                return Result<string>.Success("removed");
             }
 
             var entity = FavoriteFarm.Create(profile.Id, dto.FarmId);

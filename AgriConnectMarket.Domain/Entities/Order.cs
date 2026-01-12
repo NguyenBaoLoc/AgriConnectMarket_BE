@@ -9,6 +9,7 @@ namespace AgriConnectMarket.Domain.Entities
     {
         public Guid CustomerId { get; set; }
         public Guid AddressId { get; set; }
+        public Guid? TransactionId { get; set; }
         public string OrderCode { get; set; }
         public decimal TotalPrice { get; set; }
         public DateTime OrderDate { get; set; }
@@ -30,13 +31,10 @@ namespace AgriConnectMarket.Domain.Entities
         public Address Address { get; set; }
         public Transaction Transaction { get; set; }
         public ICollection<Notification> Notifications { get; set; }
+        public virtual Transaction? Transaction { get; set; }
 
         private readonly List<OrderItem> _orderItems = new();
         public IReadOnlyCollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
-
-        //private readonly List<Transaction> _transactions = new();
-        //public IReadOnlyCollection<Transaction> Transactions => _transactions.AsReadOnly();
-
 
         public Order()
         {
@@ -47,6 +45,7 @@ namespace AgriConnectMarket.Domain.Entities
         {
             CustomerId = customerId;
             AddressId = addressId;
+            TransactionId = null;
             OrderCode = orderCode;
             TotalPrice = 0;
             OrderDate = orderDate;
@@ -128,6 +127,11 @@ namespace AgriConnectMarket.Domain.Entities
 
                     OrderStatus = OrderStatusEnum.PROCESSING;
 
+                    foreach (var item in _orderItems)
+                    {
+                        item.Batch.AvailableQuantity -= item.Quantity;
+                    }
+
                     break;
                 case OrderStatusEnum.PROCESSING:
                     OrderStatus = OrderStatusEnum.SHIPPING;
@@ -145,7 +149,7 @@ namespace AgriConnectMarket.Domain.Entities
         //    _transactions.Add(tx);
 
         //    if ((OrderType == OrderTypeConst.ORDER && tx.Amount == TotalPrice + ShippingFee)
-        //        || (OrderType == OrderTypeConst.PREORDER && tx.Amount == TotalPrice + ShippingFee - PreOrder.PartiallyPaidAmount))
+        //        /*|| (OrderType == OrderTypeConst.PREORDER && tx.Amount == TotalPrice + ShippingFee - PreOrder.PartiallyPaidAmount) */)
         //    {
         //        UpdatePaymentStatus(PaymentStatusConst.PAID, tx.UpdatedAt);
         //    }

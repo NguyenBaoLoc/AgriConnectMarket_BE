@@ -4,6 +4,7 @@ using AgriConnectMarket.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AgriConnectMarket.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260107163003_UpdateOrderTransactionId")]
+    partial class UpdateOrderTransactionId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -194,77 +197,77 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("61f1919a-2935-413e-9ad6-abf586c699d6"),
+                            Id = new Guid("1c298b44-79a4-49b6-a2e6-ac29149bbf53"),
                             EventTypeDesc = "Prepare the soil before planting.",
                             EventTypeName = "Soil preparation",
                             PayloadFields = "[\"Method\",\"Equipment used\",\"Tillage depth\",\"Number of passes\",\"Soil amendment (type)\",\"Soil amendment (amount)\",\"Fuel consumed\",\"Notes\"]"
                         },
                         new
                         {
-                            Id = new Guid("d853fc35-519b-4c84-b8a6-a1d5b73668bd"),
+                            Id = new Guid("d9b01603-63bb-441d-9ae5-2b324926e53a"),
                             EventTypeDesc = "Analyze soil samples and record results.",
                             EventTypeName = "Soil testing",
                             PayloadFields = "[\"Sampling location\",\"Laboratory\",\"Parameters tested\",\"Results\",\"Recommendations\",\"Attachments\"]"
                         },
                         new
                         {
-                            Id = new Guid("10cead79-563b-4869-8c83-1a3e9c65372f"),
+                            Id = new Guid("ee860005-6e9b-45c8-b797-440fe8ba25df"),
                             EventTypeDesc = "Record the planting or transplanting process.",
                             EventTypeName = "Planting / transplanting",
                             PayloadFields = "[\"Variety / seed lot\",\"Supplier\",\"Spacing / density\",\"Planting method\",\"Germination rate\",\"Notes\"]"
                         },
                         new
                         {
-                            Id = new Guid("5d75825f-e47d-42c1-b33f-b25a47b1565d"),
+                            Id = new Guid("182fedfc-8d3e-42d3-a4fc-8892602457e8"),
                             EventTypeDesc = "Provide water to crops.",
                             EventTypeName = "Irrigation",
                             PayloadFields = "[\"Irrigation method\",\"Duration\",\"Water volume\",\"Water source\",\"Water treatment\",\"Weather notes\"]"
                         },
                         new
                         {
-                            Id = new Guid("82ccaa9c-0aa5-4696-8bea-d79aaebb69b0"),
+                            Id = new Guid("37e32202-ed5d-4ed8-b0af-35616339f58d"),
                             EventTypeDesc = "Provide nutrients to the crop.",
                             EventTypeName = "Fertilization",
                             PayloadFields = "[\"Product name\",\"Formula\",\"Type (organic/synthetic)\",\"Rate\",\"Application method\",\"Withholding period\",\"Supplier\",\"Notes\"]"
                         },
                         new
                         {
-                            Id = new Guid("59cfeb7e-a3ab-4a1a-b742-65b85035d8e6"),
+                            Id = new Guid("25a4be8c-a510-4f9b-a7e9-9bbdbbb8a74a"),
                             EventTypeDesc = "Manage pests or diseases using biological or chemical methods.",
                             EventTypeName = "Pest and disease control",
                             PayloadFields = "[\"Target pest/disease\",\"Product name\",\"Active ingredient\",\"Rate\",\"Dilution\",\"PHI (pre-harvest interval)\",\"REI (re-entry interval)\",\"Application equipment\",\"Weather during application\",\"PPE confirmation\",\"Notes\"]"
                         },
                         new
                         {
-                            Id = new Guid("214cc956-4030-4df1-95a5-6bb52edfc18d"),
+                            Id = new Guid("b41aabe0-6950-4a9c-94f1-fd063df86177"),
                             EventTypeDesc = "Remove weeds to reduce competition.",
                             EventTypeName = "Weeding",
                             PayloadFields = "[\"Method\",\"Area treated\",\"Labor\",\"Weed pressure\",\"Notes\"]"
                         },
                         new
                         {
-                            Id = new Guid("6fb7b5a6-0eb7-4783-bc7f-4b42a3998ae1"),
+                            Id = new Guid("8f1f4790-63a4-463d-9de4-b5f63e5065de"),
                             EventTypeDesc = "Adjust canopy, branches, or fruits to optimize growth.",
                             EventTypeName = "Pruning / training",
                             PayloadFields = "[\"Operation type\",\"Purpose\",\"Area / number of plants\",\"Waste handling\",\"Notes\"]"
                         },
                         new
                         {
-                            Id = new Guid("1047aa07-f815-4be6-9121-6c8d2a901a6d"),
+                            Id = new Guid("667903d5-d95b-432d-a853-5d12c7f3c18c"),
                             EventTypeDesc = "Record plant growth and identify risks early.",
                             EventTypeName = "Growth monitoring",
                             PayloadFields = "[\"Observations\",\"Growth/height\",\"Pest or disease signs\",\"Photos\",\"Recommendations\",\"Follow-up tasks\"]"
                         },
                         new
                         {
-                            Id = new Guid("957394df-ec3f-4bb6-a27e-a72679b8c8e2"),
+                            Id = new Guid("a2ef68f1-85fd-4a95-9a9c-9f99ec59d9a6"),
                             EventTypeDesc = "Support or record pollination activities.",
                             EventTypeName = "Pollination",
                             PayloadFields = "[\"Pollination method\",\"Hive placement\",\"Bee density\",\"Estimated fruit set\",\"Notes\"]"
                         },
                         new
                         {
-                            Id = new Guid("2751b065-8dbd-4f1c-a8ec-a754fd36d404"),
+                            Id = new Guid("e549341d-6948-4d82-9b5e-742a0f8233cb"),
                             EventTypeDesc = "Record harvest timing and quantities.",
                             EventTypeName = "Harvest",
                             PayloadFields = "[\"Time\",\"Quantity\",\"Grade\",\"Worker team\",\"Post-harvest lot\",\"Destination\",\"Notes\"]"
@@ -438,67 +441,13 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
                     b.ToTable("FavoriteFarms", (string)null);
                 });
 
-            modelBuilder.Entity("AgriConnectMarket.Domain.Entities.Notification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<Guid?>("OrderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ProfileId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id")
-                        .HasName("NotificationId");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ProfileId");
-
-                    b.ToTable("Notifications", (string)null);
-                });
-
             modelBuilder.Entity("AgriConnectMarket.Domain.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AddressId")
+                    b.Property<Guid?>("AddressId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -545,7 +494,7 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid?>("TransactionId")
+                    b.Property<Guid>("TransactionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -893,9 +842,6 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsResolved")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1074,30 +1020,11 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
                     b.Navigation("Farm");
                 });
 
-            modelBuilder.Entity("AgriConnectMarket.Domain.Entities.Notification", b =>
-                {
-                    b.HasOne("AgriConnectMarket.Domain.Entities.Order", "Order")
-                        .WithMany("Notifications")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("AgriConnectMarket.Domain.Entities.Profile", "Profile")
-                        .WithMany("Notifications")
-                        .HasForeignKey("ProfileId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Order");
-
-                    b.Navigation("Profile");
-                });
-
             modelBuilder.Entity("AgriConnectMarket.Domain.Entities.Order", b =>
                 {
                     b.HasOne("AgriConnectMarket.Domain.Entities.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AddressId");
 
                     b.HasOne("AgriConnectMarket.Domain.Entities.Profile", "Customer")
                         .WithMany("Orders")
@@ -1300,8 +1227,6 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("AgriConnectMarket.Domain.Entities.Order", b =>
                 {
-                    b.Navigation("Notifications");
-
                     b.Navigation("OrderItems");
 
                     b.Navigation("PreOrder")
@@ -1332,8 +1257,6 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("FavoriteFarms");
-
-                    b.Navigation("Notifications");
 
                     b.Navigation("Orders");
 
