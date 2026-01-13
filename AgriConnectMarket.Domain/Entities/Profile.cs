@@ -19,6 +19,7 @@ namespace AgriConnectMarket.Domain.Entities
         public ICollection<Address> Addresses { get; set; }
         public ICollection<FavoriteFarm> FavoriteFarms { get; set; }
         public virtual ICollection<ViolationReport> ViolationReports { get; set; }
+        public ICollection<Notification> Notifications { get; set; }
 
         // Audit field
         public DateTime CreatedAt { get; set; }

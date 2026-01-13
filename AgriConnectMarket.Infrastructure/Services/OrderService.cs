@@ -260,7 +260,8 @@ namespace AgriConnectMarket.Infrastructure.Services
             return Result<UpdateOrderStatusResponseDto>.Success(new UpdateOrderStatusResponseDto()
             {
                 OrderId = order.Id,
-                OrderStatus = order.OrderStatus
+                OrderStatus = order.OrderStatus,
+                CustomerId = order.CustomerId,
             });
         }
 
