@@ -29,7 +29,6 @@ namespace AgriConnectMarket.Domain.Entities
         public Profile Customer { get; set; }
         public PreOrder PreOrder { get; set; }
         public Address Address { get; set; }
-        public Transaction Transaction { get; set; }
         public ICollection<Notification> Notifications { get; set; }
         public virtual Transaction? Transaction { get; set; }
 
