@@ -438,60 +438,6 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
                     b.ToTable("FavoriteFarms", (string)null);
                 });
 
-            modelBuilder.Entity("AgriConnectMarket.Domain.Entities.Notification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<Guid?>("OrderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ProfileId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id")
-                        .HasName("NotificationId");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ProfileId");
-
-                    b.ToTable("Notifications", (string)null);
-                });
-
             modelBuilder.Entity("AgriConnectMarket.Domain.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1077,23 +1023,6 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
                     b.Navigation("Farm");
                 });
 
-            modelBuilder.Entity("AgriConnectMarket.Domain.Entities.Notification", b =>
-                {
-                    b.HasOne("AgriConnectMarket.Domain.Entities.Order", "Order")
-                        .WithMany("Notifications")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("AgriConnectMarket.Domain.Entities.Profile", "Profile")
-                        .WithMany("Notifications")
-                        .HasForeignKey("ProfileId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Order");
-
-                    b.Navigation("Profile");
-                });
-
             modelBuilder.Entity("AgriConnectMarket.Domain.Entities.Order", b =>
                 {
                     b.HasOne("AgriConnectMarket.Domain.Entities.Address", "Address")
@@ -1303,8 +1232,6 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("AgriConnectMarket.Domain.Entities.Order", b =>
                 {
-                    b.Navigation("Notifications");
-
                     b.Navigation("OrderItems");
 
                     b.Navigation("PreOrder")
@@ -1335,8 +1262,6 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("FavoriteFarms");
-
-                    b.Navigation("Notifications");
 
                     b.Navigation("Orders");
 

@@ -23,7 +23,6 @@ namespace AgriConnectMarket.Infrastructure.Data
         public DbSet<PreOrder> PreOrders { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<PasswordOtp> PasswordOtps { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -322,27 +321,6 @@ namespace AgriConnectMarket.Infrastructure.Data
                     .OnDelete(DeleteBehavior.NoAction);
             });
 
-            modelBuilder.Entity<Notification>(n =>
-            {
-                n.ToTable("Notifications");
-
-                n.HasKey(n => n.Id).HasName("NotificationId");
-
-                n.Property(n => n.Title).HasMaxLength(100);
-                n.Property(n => n.Message).IsRequired().HasMaxLength(255);
-                n.Property(n => n.Type).IsRequired();
-                n.Property(n => n.IsRead).IsRequired();
-                n.Property(n => n.CreatedAt).IsRequired();
-
-                n.HasOne(n => n.Profile)
-                    .WithMany(p => p.Notifications)
-                    .HasForeignKey(n => n.ProfileId)
-                    .OnDelete(DeleteBehavior.Cascade);
-                n.HasOne(n => n.Order)
-                    .WithMany(o => o.Notifications)
-                    .HasForeignKey(n => n.OrderId)
-                    .OnDelete(DeleteBehavior.SetNull);
-                });
             // SEEDING
             CareEventTypeSeeding.ExecuteSeeding(modelBuilder);
         }
