@@ -29,6 +29,7 @@ namespace AgriConnectMarket.Infrastructure.Extensions
             services.AddScoped<ForgotPasswordService>();
             services.AddScoped<ViolationReportService>();
             services.AddScoped<NotificationService>();
+            services.AddScoped<TransactionService>();
 
             return services;
         }
