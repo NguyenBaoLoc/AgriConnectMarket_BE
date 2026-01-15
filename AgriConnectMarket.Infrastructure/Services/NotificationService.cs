@@ -27,7 +27,7 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             if (!notifications.Any())
             {
-                return Result<IEnumerable<Notification>>.Fail(MessageConstant.ADDRESS_NOT_FOUND);
+                return Result<IEnumerable<Notification>>.Fail(MessageConstant.NOTIFICATION_NOT_FOUND);
             }
 
             return Result<IEnumerable<Notification>>.Success(notifications);
@@ -87,6 +87,31 @@ namespace AgriConnectMarket.Infrastructure.Services
             await _uow.SaveChangesAsync(ct);
 
             return Result<Guid>.Success(notificationId);
+        }
+        public async Task<Result<IEnumerable<Notification>>> MarkAllAsRead(CancellationToken ct = default)
+        {
+            if (_currentUserService.UserId is null)
+            {
+                return Result<IEnumerable<Notification>>.Fail(MessageConstant.NOT_AUTHENTICATED_USER);
+            }
+
+            var userId = (Guid)_currentUserService.UserId;
+            var notifications = await _uow.NotificationRepository.GetNotificationsByProfileIdAsync(userId, includeOrder: true);
+
+            if (!notifications.Any())
+            {
+                return Result<IEnumerable<Notification>>.Fail(MessageConstant.NOTIFICATION_NOT_FOUND);
+            }
+
+            foreach (var noti in notifications)
+            {
+                if (!noti.IsRead)
+                {
+                    await ChangeReadStatus(noti.Id, ct);
+                }
+            }
+
+            return Result<IEnumerable<Notification>>.Success(notifications);
         }
         private static (string Title, string Message) GenerateNotificationContent(string type)
         {

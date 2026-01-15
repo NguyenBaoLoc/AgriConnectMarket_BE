@@ -75,22 +75,14 @@ namespace AgriConnectMarket.WebApi.Controllers
         [HttpPatch("read-all")]
         public async Task<IActionResult> MarkAllAsRead(CancellationToken ct)
         {
-            var result = await _notificationService.GetUserNotificationsAsync(ct);
+            var result = await _notificationService.MarkAllAsRead(ct);
 
             if (!result.IsSuccess)
             {
                 return BadRequest(ApiResponse.FailResponse(result.Error));
             }
 
-            foreach (var noti in result.Value)
-            {
-                if (!noti.IsRead)
-                {
-                    await _notificationService.ChangeReadStatus(noti.Id, ct);
-                }
-            }
-
-            return Ok(ApiResponse.SuccessResponse(result.Value, MessageConstant.COMMON_RETRIVE_SUCCESS_MESSAGE));
+            return Ok(ApiResponse.SuccessResponse(result.Value, MessageConstant.COMMON_UPDATE_SUCCESS_MESSAGE));
         }
     }
 }
