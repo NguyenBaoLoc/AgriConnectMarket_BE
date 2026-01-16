@@ -98,5 +98,16 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             return Result<Profile>.Success(profile);
         }
+        public async Task<Result<Profile>> GetProfileByAccountId(Guid accountId, CancellationToken ct = default)
+        {
+            var existing = await _uow.ProfileRepository.GetByAccountIdAsync(accountId, false);
+
+            if (existing is null)
+            {
+                return Result<Profile>.Fail(MessageConstant.PROFILE_ID_NOT_FOUND);
+            }
+
+            return Result<Profile>.Success(existing);
+        }
     }
 }
