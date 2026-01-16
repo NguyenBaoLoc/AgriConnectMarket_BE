@@ -83,6 +83,7 @@ namespace AgriConnectMarket.Domain.Entities
 
             this.AvailableQuantity = availableQuantity;
             this.Price = price;
+            this.IsSelling = true;
         }
 
         public void StopSelling()
