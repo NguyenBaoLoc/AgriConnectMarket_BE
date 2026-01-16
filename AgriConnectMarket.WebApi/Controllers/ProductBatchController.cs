@@ -130,6 +130,19 @@ namespace AgriConnectMarket.WebApi.Controllers
             return Ok(ApiResponse.SuccessResponse(result.Value));
         }
 
+        [HttpGet("recommended/{userId}")]
+        public async Task<IActionResult> GetRecommendedForUserAsync([FromRoute] Guid userId, CancellationToken ct)
+        {
+            var result = await _batchService.GetRecommendedForUserAsync(userId, ct);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(ApiResponse.FailResponse(result.Error));
+            }
+
+            return Ok(ApiResponse.SuccessResponse(result.Value));
+        }
+
         [HttpPost("")]
         public async Task<IActionResult> CreateBatch([FromForm] CreateProductBatchRequest request, CancellationToken ct)
         {
@@ -199,6 +212,19 @@ namespace AgriConnectMarket.WebApi.Controllers
         public async Task<IActionResult> SellBatch([FromRoute] Guid batchId, [FromBody] SellProductBatchRequestDto dto, CancellationToken ct)
         {
             var result = await _batchService.SellBatchAsync(batchId, dto, ct);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(ApiResponse.FailResponse(result.Error));
+            }
+
+            return Ok(ApiResponse.SuccessResponse(result.Value));
+        }
+
+        [HttpPatch("{batchId}/stop-selling")]
+        public async Task<IActionResult> StopSellingBatch([FromRoute] Guid batchId, CancellationToken ct)
+        {
+            var result = await _batchService.StopSellingAsync(batchId, ct);
 
             if (!result.IsSuccess)
             {

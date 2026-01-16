@@ -8,12 +8,11 @@ using AgriConnectMarket.SharedKernel.Constants;
 using AgriConnectMarket.SharedKernel.Interfaces;
 using AgriConnectMarket.SharedKernel.Result;
 using AgriConnectMarket.SharedKernel.Specifications;
-using Microsoft.Extensions.FileSystemGlobbing;
 using System.Data;
 
 namespace AgriConnectMarket.Infrastructure.Services
 {
-    public class ProductBatchService(IUnitOfWork _uow, IBatchCodeGenerator _codeGenerator, IDateTimeProvider _dateTimeProvider, IQrCodeGenerator _qrCodeGenerator)
+    public class ProductBatchService(IUnitOfWork _uow, IBatchCodeGenerator _codeGenerator, IDateTimeProvider _dateTimeProvider, IQrCodeGenerator _qrCodeGenerator, CareEventService _careEventService)
     {
         public async Task<Result<IEnumerable<ProductBatchResponseDto>>> GetAllBatchesAsync(CancellationToken ct = default)
         {
@@ -123,6 +122,23 @@ namespace AgriConnectMarket.Infrastructure.Services
             {
                 return Result<ProductBatch>.Fail(MessageConstant.BATCH_NOT_FOUND);
             }
+
+            return Result<ProductBatch>.Success(batch);
+        }
+
+        public async Task<Result<ProductBatch>> StopSellingAsync(Guid batchId, CancellationToken ct = default)
+        {
+            var batch = await _uow.ProductBatchRepository.GetByIdAsync(batchId, true, true, ct);
+
+            if (batch is null)
+            {
+                return Result<ProductBatch>.Fail(MessageConstant.BATCH_NOT_FOUND);
+            }
+
+            batch.StopSelling();
+
+            await _uow.ProductBatchRepository.UpdateAsync(batch, ct);
+            await _uow.SaveChangesAsync(ct);
 
             return Result<ProductBatch>.Success(batch);
         }
@@ -276,6 +292,41 @@ namespace AgriConnectMarket.Infrastructure.Services
             await _uow.SaveChangesAsync(ct);
 
             return Result<ProductBatch>.Success(entity);
+        }
+
+        public async Task<Result<IEnumerable<ProductBatch>>> GetRecommendedForUserAsync(Guid userId, CancellationToken ct)
+        {
+            var profile = await _uow.ProfileRepository.GetByIdAsync(userId, ct);
+
+            if (profile is null)
+            {
+                return Result<IEnumerable<ProductBatch>>.Success([]);
+            }
+
+            var orders = await _uow.OrderRepository.GetOrderByProfileIdAsync(profile.Id, true, false, false, ct);
+
+            if (!orders.Any())
+            {
+                return Result<IEnumerable<ProductBatch>>.Success([]);
+            }
+
+            var batches = await _uow.ProductBatchRepository.ListAllAsync(ct);
+
+            var group = batches
+                .Where(b => b.OrderItems.Any(i => i.Order.CustomerId == profile.Id))
+                .GroupBy(b => new { b.Season.FarmId, b.Id })
+                .Select(g => new { key = g.Key, count = g.Count() })
+                .OrderByDescending(kv => kv.count)
+                .ToList();
+
+            IEnumerable<ProductBatch> res = new List<ProductBatch>();
+
+            foreach (var g in group)
+            {
+                res.Append(batches.FirstOrDefault(b => b.Id == g.key.Id));
+            }
+
+            return Result<IEnumerable<ProductBatch>>.Success(res);
         }
     }
 }

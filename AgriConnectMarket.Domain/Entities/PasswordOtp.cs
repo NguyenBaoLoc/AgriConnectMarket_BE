@@ -19,8 +19,6 @@ namespace AgriConnectMarket.Domain.Entities
         public PasswordOtp() { } // EF
         public PasswordOtp(Guid userId, string hashedOtp, string salt, DateTimeOffset now, TimeSpan ttl, string purpose, int maxAttempts = 5)
         {
-            Guard.AgainstInvalidEnumValue(typeof(OtpPurposeConst), purpose, nameof(purpose));
-
             UserId = userId;
             HashedOtp = hashedOtp;
             Salt = salt;
