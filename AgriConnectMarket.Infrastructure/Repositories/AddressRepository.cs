@@ -44,5 +44,12 @@ namespace AgriConnectMarket.Infrastructure.Repositories
 
             return await query.FirstOrDefaultAsync();
         }
+        public async Task<IEnumerable<Address>> GetAllFarmAddressesAsync()
+        {
+            var query = _dbContext.Set<Address>().Where(a => a.ProfileId == null && !a.IsDelete);
+
+            return await query.ToListAsync();
+        }
+
     }
 }
