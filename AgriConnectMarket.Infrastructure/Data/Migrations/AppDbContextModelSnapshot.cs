@@ -470,6 +470,24 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
                     b.ToTable("Notifications", (string)null);
                 });
 
+                   modelBuilder.Entity("AgriConnectMarket.Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("AgriConnectMarket.Domain.Entities.Order", "Order")
+                        .WithMany("Notifications")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("AgriConnectMarket.Domain.Entities.Profile", "Profile")
+                        .WithMany("Notifications")
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Profile");
+                });
+
+
             modelBuilder.Entity("AgriConnectMarket.Domain.Entities.FavoriteFarm", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1101,6 +1119,7 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("Transaction");
+                    b.Navigation("Notifications");
                 });
 
             modelBuilder.Entity("AgriConnectMarket.Domain.Entities.OrderItem", b =>
@@ -1320,6 +1339,7 @@ namespace AgriConnectMarket.Infrastructure.Data.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("ViolationReports");
+                    b.Navigation("Notifications");
                 });
 
             modelBuilder.Entity("AgriConnectMarket.Domain.Entities.Season", b =>
