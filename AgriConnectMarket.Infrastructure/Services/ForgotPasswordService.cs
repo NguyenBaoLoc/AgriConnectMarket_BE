@@ -31,12 +31,11 @@ namespace AgriConnectMarket.Infrastructure.Services
 
             int expiredTimeInMinute = 6;
 
-            var TTL = new TimeSpan(expiredTimeInMinute);
             var rawOtp = _randomGenerator.GenerateNumeric(expiredTimeInMinute);
             var (hash, salt) = _hashing.Hash(rawOtp);
 
             var now = _clock.UtcNow;
-            var otpEntity = new PasswordOtp(accountId, hash, salt, now, TTL, OtpPurposeConst.ResetPassword);
+            var otpEntity = new PasswordOtp(accountId, hash, salt, now, expiredTimeInMinute, OtpPurposeConst.ResetPassword);
             await _uow.PasswordOtpRepository.AddAsync(otpEntity, ct);
 
             // Build email body
