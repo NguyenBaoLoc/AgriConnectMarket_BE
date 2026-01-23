@@ -2,7 +2,7 @@
 {
     public static class OtpPurposeConst
     {
-        public static string ResetPassword = "Reset Password";
-        public static string VerifyEmail = "Verify Email";
+        public const string ResetPassword = "Reset Password";
+        public const string VerifyEmail = "Verify Email";
     }
 }
