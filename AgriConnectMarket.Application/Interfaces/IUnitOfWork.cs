@@ -21,7 +21,6 @@
         ITransactionRepository TransactionRepository { get; set; }
         IPasswordOtpRepository PasswordOtpRepository { get; set; }
         IViolationReportRepository ViolationReportRepository { get; set; }
-        INotificationRepository NotificationRepository { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

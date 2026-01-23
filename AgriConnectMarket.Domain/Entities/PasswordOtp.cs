@@ -17,13 +17,15 @@ namespace AgriConnectMarket.Domain.Entities
         public string Purpose { get; private set; }  // enum e.g. ResetPassword, VerifyEmail
 
         public PasswordOtp() { } // EF
-        public PasswordOtp(Guid userId, string hashedOtp, string salt, DateTimeOffset now, TimeSpan ttl, string purpose, int maxAttempts = 5)
+        public PasswordOtp(Guid userId, string hashedOtp, string salt, DateTimeOffset now, int ttl, string purpose, int maxAttempts = 5)
         {
+            Guard.AgainstInvalidEnumValue(typeof(OtpPurposeConst), purpose, nameof(purpose));
+
             UserId = userId;
             HashedOtp = hashedOtp;
             Salt = salt;
             CreatedAt = now;
-            ExpiresAt = now.Add(ttl);
+            ExpiresAt = now.AddMinutes(ttl);
             Purpose = purpose;
             MaxAttempts = maxAttempts;
             Consumed = false;

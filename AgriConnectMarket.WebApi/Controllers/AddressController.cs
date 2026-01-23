@@ -89,17 +89,5 @@ namespace AgriConnectMarket.WebApi.Controllers
 
             return Ok(ApiResponse.SuccessResponse(result.Value, MessageConstant.COMMON_DELETE_SUCCESS_MESSAGE));
         }
-        [HttpGet("farm")]
-        public async Task<IActionResult> GetAllFarmAddresses(CancellationToken ct)
-        {
-            var result = await _addressService.GetAllFarmAddressesAsync(ct);
-
-            if (!result.IsSuccess)
-            {
-                return BadRequest(ApiResponse.FailResponse(result.Error));
-            }
-
-            return Ok(ApiResponse.SuccessResponse(result.Value, MessageConstant.COMMON_RETRIVE_SUCCESS_MESSAGE));
-        }
     }
 }

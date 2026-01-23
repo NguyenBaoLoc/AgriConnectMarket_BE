@@ -29,7 +29,6 @@ namespace AgriConnectMarket.Domain.Entities
         public Profile Customer { get; set; }
         public PreOrder PreOrder { get; set; }
         public Address Address { get; set; }
-        public ICollection<Notification> Notifications { get; set; }
         public virtual Transaction? Transaction { get; set; }
 
         private readonly List<OrderItem> _orderItems = new();
