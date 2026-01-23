@@ -31,6 +31,7 @@ namespace AgriConnectMarket.Infrastructure.Extensions
             services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<IPasswordOtpRepository, PasswordOtpRepository>();
             services.AddScoped<IViolationReportRepository, ViolationRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
 
             return services;
         }
